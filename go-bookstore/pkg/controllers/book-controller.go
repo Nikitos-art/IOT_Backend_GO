@@ -3,82 +3,106 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
-	"github.com/Nikitos-art/go-bookstore/pkg/utils"
-	"github.com/Nikitos-art/go-bookstore/pkg/models"
-)
 
-var NewBook models.Book
+	"github.com/gorilla/mux"
+	"github.com/Nikitos-art/go-bookstore/pkg/models"
+	"github.com/Nikitos-art/go-bookstore/pkg/utils"
+)
 
 func GetBook(w http.ResponseWriter, r *http.Request) {
 	newBooks := models.GetAllBooks()
-	res, _ := json.Marshal(newBooks)
-	w.Header().Set("Content-Type", "pkglication/json")
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+
+	json.NewEncoder(w).Encode(newBooks)
 }
 
 func GetBookById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bookId := vars["bookId"]
+
 	ID, err := strconv.ParseInt(bookId, 0, 0)
 	if err != nil {
 		fmt.Println("error while parsing")
 	}
+
 	bookDetails, _ := models.GetBookById(ID)
-	res, _ := json.Marshal(bookDetails)
-	w.Header().Set("Content-Type", "pkglication/json")
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+
+	json.NewEncoder(w).Encode(bookDetails)
 }
 
 func CreateBook(w http.ResponseWriter, r *http.Request) {
-	CreateBook := &models.Book{}
-	utils.ParseBody(r, CreateBook)
-	b := CreateBook.CreateBook()
-	res, _ := json.Marshal(b)
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	newBook := &models.Book{}
+
+	utils.ParseBody(r, newBook)
+
+	created := newBook.CreateBook()
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+
+	json.NewEncoder(w).Encode(created)
 }
 
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bookId := vars["bookId"]
+
 	ID, err := strconv.ParseInt(bookId, 0, 0)
 	if err != nil {
-		fmt.Println("error while parsing")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "invalid book id",
+		})
+		return
 	}
-	book := models.DeleteBook(ID)
-	res, _ := json.Marshal(book)
-	w.Header().Set("Content-Type", "pkglication/json")
+
+	deleted := models.DeleteBook(ID)
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	json.NewEncoder(w).Encode(deleted)
 }
 
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
-	var updateBook = &models.Book{}
+	updateBook := &models.Book{}
 	utils.ParseBody(r, updateBook)
+
 	vars := mux.Vars(r)
 	bookId := vars["bookId"]
+
 	ID, err := strconv.ParseInt(bookId, 0, 0)
 	if err != nil {
-		fmt.Println("error while parsing")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "invalid book id",
+		})
+		return
 	}
+
 	bookDetails, db := models.GetBookById(ID)
-	if updateBook.Name != ""{
+
+	if updateBook.Name != "" {
 		bookDetails.Name = updateBook.Name
 	}
-	if updateBook.Author != ""{
+	if updateBook.Author != "" {
 		bookDetails.Author = updateBook.Author
 	}
-	if updateBook.Publication != ""{
+	if updateBook.Publication != "" {
 		bookDetails.Publication = updateBook.Publication
 	}
+
 	db.Save(&bookDetails)
-	res, _ := json.Marshal(bookDetails)
-	w.Header().Set("Content-Type", "pkglication/json")
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	json.NewEncoder(w).Encode(bookDetails)
 }
