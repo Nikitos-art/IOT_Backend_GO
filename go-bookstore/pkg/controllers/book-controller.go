@@ -9,10 +9,17 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/Nikitos-art/go-bookstore/pkg/models"
 	"github.com/Nikitos-art/go-bookstore/pkg/utils"
+	"github.com/Nikitos-art/go-bookstore/pkg/services"
+	
 )
 
 func GetBook(w http.ResponseWriter, r *http.Request) {
-	newBooks := models.GetAllBooks()
+	newBooks, err := services.GetAllBooks()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -29,7 +36,11 @@ func GetBookById(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("error while parsing")
 	}
 
-	bookDetails, _ := models.GetBookById(ID)
+	bookDetails, err := services.GetBookById(ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -56,7 +67,12 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	created := newBook.CreateBook()
+	// created := newBook.CreateBook()
+	created, err := services.CreateBook(newBook)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(created)
@@ -76,11 +92,17 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deleted := models.DeleteBook(ID)
+	// deleted := models.DeleteBook(ID)
+	err = services.DeleteBook(ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(deleted)
+	// json.NewEncoder(w).Encode(deleted)
+	json.NewEncoder(w).Encode(map[string]string{"message": "book deleted"})
 }
 
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
@@ -100,7 +122,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bookDetails, db := models.GetBookById(ID)
+	bookDetails, err := services.GetBookById(ID)
 
 	if updateBook.Name != "" {
 		bookDetails.Name = updateBook.Name
@@ -112,7 +134,11 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 		bookDetails.Publication = updateBook.Publication
 	}
 
-	db.Save(&bookDetails)
+	err = services.UpdateBook(bookDetails)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

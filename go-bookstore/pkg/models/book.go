@@ -13,25 +13,29 @@ type Book struct {
 	Publication string `json:"publication" validate:"required"`
 }
 
-func (b *Book) CreateBook() *Book {
-	config.GetDB().Create(&b)
-	return b
+func (b *Book) CreateBook() error {
+	result := config.GetDB().Create(b)
+	return result.Error
 }
 
-func GetAllBooks() []Book {
+func GetAllBooks() ([]Book, error) {
 	var books []Book
-	config.GetDB().Find(&books)
-	return books
+	result := config.GetDB().Find(&books)
+	return books, result.Error
 }
 
-func GetBookById(id int64) (*Book, *gorm.DB) {
+func GetBookById(id int64) (*Book, error) {
 	var book Book
-	db := config.GetDB().Where("id = ?", id).Find(&book)
-	return &book, db
+	result := config.GetDB().Where("id = ?", id).Find(&book)
+	return &book, result.Error
 }
 
-func DeleteBook(id int64) Book {
-	var book Book
-	config.GetDB().Where("id = ?", id).Delete(&book)
-	return book
+func DeleteBook(id int64) error {
+	result := config.GetDB().Where("id = ?", id).Delete(&Book{})
+	return result.Error
+}
+
+func UpdateBook(b *Book) error {
+	result := config.GetDB().Save(b)
+	return result.Error
 }

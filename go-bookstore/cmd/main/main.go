@@ -8,10 +8,10 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-
 	"github.com/Nikitos-art/go-bookstore/pkg/config"
 	"github.com/Nikitos-art/go-bookstore/pkg/routes"
 	"github.com/Nikitos-art/go-bookstore/pkg/models"
+	"github.com/Nikitos-art/go-bookstore/pkg/middleware"
 )
 
 func main() {
@@ -25,6 +25,8 @@ func main() {
 	config.GetDB().AutoMigrate(&models.Book{})
 
 	r := mux.NewRouter()
+	r.Use(middleware.Logger)
+
 	routes.RegisterBookStoreRoutes(r)
 
 	fmt.Println(`

@@ -18,20 +18,18 @@ func Connect() {
 	name := os.Getenv("DB_NAME")
 	port := os.Getenv("DB_PORT")
 
-	// fmt.Println("DEBUG DB_HOST:", host)
-	// fmt.Println("DEBUG DB_PORT:", port)
-
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		host, user, pass, name, port,
 	)
 
-	// fmt.Println("DEBUG DSN:", dsn)
-
 	d, err := gorm.Open("postgres", dsn)
 	if err != nil {
 		panic(err)
 	}
+
+	// ✅ enable GORM logging
+	d.LogMode(true)
 
 	db = d
 }

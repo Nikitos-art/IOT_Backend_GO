@@ -5,3 +5,6 @@ This project is a simple Book Management REST API built in Go, demonstrating bas
 1. go mod tidy
 2. go run cmd/main/main.go
 3. http://localhost:9010
+
+## Git ##
+1. Git commands must be run from one level up of the root dir
