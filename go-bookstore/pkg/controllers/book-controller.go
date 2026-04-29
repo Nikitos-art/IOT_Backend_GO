@@ -40,13 +40,25 @@ func GetBookById(w http.ResponseWriter, r *http.Request) {
 func CreateBook(w http.ResponseWriter, r *http.Request) {
 	newBook := &models.Book{}
 
-	utils.ParseBody(r, newBook)
+	if err := utils.ParseBody(r, newBook); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "invalid request body",
+		})
+		return
+	}
+
+	if err := utils.ValidateStruct(newBook); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": err.Error(),
+		})
+		return
+	}
 
 	created := newBook.CreateBook()
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-
 	json.NewEncoder(w).Encode(created)
 }
 
