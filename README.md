@@ -8,3 +8,6 @@ This project is a simple Book Management REST API built in Go, demonstrating bas
 
 ## Git ##
 1. Git commands must be run from one level up of the root dir
+
+### PERSONAL NOTES ###
+1. Putting validation tags directly on your GORM model is discouraged in large projects due to tight coupling

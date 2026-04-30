@@ -2,20 +2,39 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
+	// "fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/Nikitos-art/go-bookstore/pkg/middleware"
 	"github.com/Nikitos-art/go-bookstore/pkg/models"
-	"github.com/Nikitos-art/go-bookstore/pkg/utils"
 	"github.com/Nikitos-art/go-bookstore/pkg/services"
-	
+	"github.com/Nikitos-art/go-bookstore/pkg/utils"
 )
 
-func GetBook(w http.ResponseWriter, r *http.Request) {
-	newBooks, err := services.GetAllBooks()
+type BookController struct {
+	service *services.BookService
+}
 
+func NewBookController(s *services.BookService) *BookController {
+	return &BookController{
+		service: s,
+	}
+}
+
+func (c *BookController) GetBooks(w http.ResponseWriter, r *http.Request) {
+
+	userID := r.Context().Value(middleware.UserKey)
+
+	if userID == nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	uid := userID.(uint)
+
+	newBooks, err := c.service.GetBooksByUser(uid)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -27,16 +46,17 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newBooks)
 }
 
-func GetBookById(w http.ResponseWriter, r *http.Request) {
+func (c *BookController) GetBookById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bookId := vars["bookId"]
 
-	ID, err := strconv.ParseInt(bookId, 0, 0)
+	ID, err := strconv.ParseInt(bookId, 10, 64)
 	if err != nil {
-		fmt.Println("error while parsing")
+		http.Error(w, "invalid book id", http.StatusBadRequest)
+		return
 	}
 
-	bookDetails, err := services.GetBookById(ID)
+	bookDetails, err := c.service.GetBookById(ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -48,52 +68,53 @@ func GetBookById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(bookDetails)
 }
 
-func CreateBook(w http.ResponseWriter, r *http.Request) {
+func (c *BookController) CreateBook(w http.ResponseWriter, r *http.Request) {
 	newBook := &models.Book{}
 
+	// parse request
 	if err := utils.ParseBody(r, newBook); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{
-			"error": "invalid request body",
-		})
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if err := utils.ValidateStruct(newBook); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{
-			"error": err.Error(),
-		})
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// created := newBook.CreateBook()
-	created, err := services.CreateBook(newBook)
+	// 🔥 GET USER ID FROM JWT
+	userID := r.Context().Value(middleware.UserKey)
+	if userID == nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	newBook.UserID = userID.(uint)
+
+	// save book
+	created, err := c.service.CreateBook(newBook)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+
 	json.NewEncoder(w).Encode(created)
 }
 
-func DeleteBook(w http.ResponseWriter, r *http.Request) {
+func (c *BookController) DeleteBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bookId := vars["bookId"]
 
-	ID, err := strconv.ParseInt(bookId, 0, 0)
+	ID, err := strconv.ParseInt(bookId, 10, 64)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{
-			"error": "invalid book id",
-		})
+		http.Error(w, "invalid book id", http.StatusBadRequest)
 		return
 	}
 
-	// deleted := models.DeleteBook(ID)
-	err = services.DeleteBook(ID)
+	err = c.service.DeleteBook(ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -101,28 +122,34 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	// json.NewEncoder(w).Encode(deleted)
-	json.NewEncoder(w).Encode(map[string]string{"message": "book deleted"})
+
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "book deleted",
+	})
 }
 
-func UpdateBook(w http.ResponseWriter, r *http.Request) {
+func (c *BookController) UpdateBook(w http.ResponseWriter, r *http.Request) {
 	updateBook := &models.Book{}
-	utils.ParseBody(r, updateBook)
+
+	if err := utils.ParseBody(r, updateBook); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
 
 	vars := mux.Vars(r)
 	bookId := vars["bookId"]
 
-	ID, err := strconv.ParseInt(bookId, 0, 0)
+	ID, err := strconv.ParseInt(bookId, 10, 64)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{
-			"error": "invalid book id",
-		})
+		http.Error(w, "invalid book id", http.StatusBadRequest)
 		return
 	}
 
-	bookDetails, err := services.GetBookById(ID)
+	bookDetails, err := c.service.GetBookById(ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	if updateBook.Name != "" {
 		bookDetails.Name = updateBook.Name
@@ -134,7 +161,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 		bookDetails.Publication = updateBook.Publication
 	}
 
-	err = services.UpdateBook(bookDetails)
+	err = c.service.UpdateBook(bookDetails)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -142,5 +169,6 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+
 	json.NewEncoder(w).Encode(bookDetails)
 }

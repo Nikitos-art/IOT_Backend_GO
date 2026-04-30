@@ -11,8 +11,9 @@ type Book struct {
 	Name        string `json:"name" validate:"required"`
 	Author      string `json:"author" validate:"required"`
 	Publication string `json:"publication" validate:"required"`
-}
 
+	UserID uint `json:"user_id"`
+}
 func (b *Book) CreateBook() error {
 	result := config.GetDB().Create(b)
 	return result.Error
