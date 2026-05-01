@@ -1,9 +1,9 @@
 package services
 
 import (
-    "github.com/Nikitos-art/go-iot-backend/pkg/config"
-    "github.com/Nikitos-art/go-iot-backend/pkg/models"
-    "github.com/Nikitos-art/go-iot-backend/pkg/utils"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/config"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/models"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/utils"
 )
 
 func CreateDevice(device *models.Device) error {

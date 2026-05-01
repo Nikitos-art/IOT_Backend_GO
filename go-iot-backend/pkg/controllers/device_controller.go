@@ -6,9 +6,9 @@ import (
     "strconv"
 
     "github.com/gorilla/mux"
-    "github.com/Nikitos-art/go-iot-backend/pkg/models"
-    "github.com/Nikitos-art/go-iot-backend/pkg/services"
-    "github.com/Nikitos-art/go-iot-backend/pkg/middleware"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/models"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/services"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/middleware"
 )
 
 func CreateDevice(w http.ResponseWriter, r *http.Request) {

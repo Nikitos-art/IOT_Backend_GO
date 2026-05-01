@@ -6,8 +6,8 @@ import (
     "golang.org/x/crypto/bcrypt"
     "github.com/jinzhu/gorm"
 
-    "github.com/Nikitos-art/go-bookstore/pkg/models"
-    "github.com/Nikitos-art/go-bookstore/pkg/utils"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/models"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/utils"
 )
 
 type AuthService struct {

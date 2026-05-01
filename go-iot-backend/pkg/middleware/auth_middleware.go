@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Nikitos-art/go-iot-backend/pkg/utils"
+	"github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/utils"
 )
 
 type key string

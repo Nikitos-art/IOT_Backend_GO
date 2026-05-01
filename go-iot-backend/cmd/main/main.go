@@ -8,10 +8,10 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/Nikitos-art/go-iot-backend/pkg/config"
-	"github.com/Nikitos-art/go-iot-backend/pkg/routes"
-	"github.com/Nikitos-art/go-iot-backend/pkg/models"
-	"github.com/Nikitos-art/go-iot-backend/pkg/middleware"
+	"github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/config"
+	"github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/routes"
+	"github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/models"
+	"github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/middleware"
 )
 
 func main() {
