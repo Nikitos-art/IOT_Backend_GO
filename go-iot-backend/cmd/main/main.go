@@ -54,7 +54,7 @@ func main() {
 
 	fmt.Println(`
 	========================================
-	🚀  BOOKSTORE SERVER RUNNING
+	🚀  IoT BACKEND SERVER RUNNING
 	========================================
 	`)
 	fmt.Printf("👉 URL: http://localhost%s\n", ":9010")
