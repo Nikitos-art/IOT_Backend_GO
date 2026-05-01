@@ -24,6 +24,8 @@ func main() {
 	// IMPORTANT: run migrations AFTER DB is ready
 	config.GetDB().AutoMigrate(&models.Book{})
 	config.GetDB().AutoMigrate(&models.User{})
+	config.GetDB().AutoMigrate(&models.Device{})
+	config.GetDB().AutoMigrate(&models.DeviceData{})
 
 	r := mux.NewRouter()
 
