@@ -1,4 +1,4 @@
-module github.com/Nikitos-art/go-bookstore
+module github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend
 
 go 1.25.0
 
