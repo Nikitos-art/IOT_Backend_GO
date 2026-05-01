@@ -4,7 +4,7 @@ import (
     "encoding/json"
     "net/http"
 
-    "github.com/Nikitos-art/go-bookstore/pkg/services"
+    "github.com/Nikitos-art/go-iot-backend/pkg/services"
 )
 
 type AuthController struct {
