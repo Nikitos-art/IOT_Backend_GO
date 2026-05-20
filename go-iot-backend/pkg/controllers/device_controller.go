@@ -6,31 +6,40 @@ import (
     "strconv"
 
     "github.com/gorilla/mux"
-    "github.com/Nikitos-art/go-iot-backend/pkg/models"
-    "github.com/Nikitos-art/go-iot-backend/pkg/services"
-    "github.com/Nikitos-art/go-iot-backend/pkg/middleware"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/models"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/services"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/middleware"
 )
 
 func CreateDevice(w http.ResponseWriter, r *http.Request) {
 	var device models.Device
 
-	json.NewDecoder(r.Body).Decode(&device)
+	// decode request
+	err := json.NewDecoder(r.Body).Decode(&device)
+	if err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
 
-	// 🔥 get user from JWT middleware
+	// get user from middleware
 	userID := middleware.GetUserID(r)
 	device.UserID = userID
 
-	err := services.CreateDevice(&device)
+	// create device
+	err = services.CreateDevice(&device)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// 🔥 IMPORTANT: return API key ONCE
+	// 🔥 IMPORTANT: set status FIRST
+	w.WriteHeader(http.StatusCreated)
+
+	// response
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"id":       device.ID,
-		"name":     device.Name,
-		"api_key":  device.APIKey,
+		"id":      device.ID,
+		"name":    device.Name,
+		"api_key": device.APIKey,
 	})
 }
 

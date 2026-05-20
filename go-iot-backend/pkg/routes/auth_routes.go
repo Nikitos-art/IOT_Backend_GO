@@ -2,8 +2,8 @@ package routes
 
 import (
     "github.com/gorilla/mux"
-    "github.com/Nikitos-art/go-iot-backend/pkg/controllers"
-    "github.com/Nikitos-art/go-iot-backend/pkg/services"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/controllers"
+    "github.com/Nikitos-art/IOT_Backend_GO/go-iot-backend/pkg/services"
     "github.com/jinzhu/gorm"
 )
 
