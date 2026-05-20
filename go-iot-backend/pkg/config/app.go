@@ -1,3 +1,4 @@
+// DB connection is established and env vars are loaded
 package config
 
 import (
